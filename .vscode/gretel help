@@ -1,0 +1,86 @@
+// Step #1 get element you want to attach event listener to
+var inputField = d3.select("#text");
+// Step #2 - connect element to event listener
+inputField.on("change", handleChange);
+// Step #3 Define event listener function
+function handleChange(event) {
+  // Step 1: get the input value
+  var input = inputField.property("value");
+  // Step 2: Do the thing to the input value
+  var reversedString = reverseString(input);
+  // Step 3: Locate output element
+  var output = d3.select(".output");
+  // Step 4: clear the existing output
+  output.html("")
+  // Step 5: attach new output to output element
+  output.text(reversedString);
+}
+
+
+For loop to add data to table
+
+function Key() {
+  let api_key = “rcKKCFQ6gSUy4R_8fQ2y”;
+  return api_key;
+}
+// this function is going to be called to build table
+function buildTable() {
+  let apiKey = Key();
+  let queryUrl = `https://www.quandl.com/api/v3/datasets/WIKI/AMZN.json?start_date=2016-10-01&end_date=2017-10-01&collapse=weekly&api_key=${apiKey}`;
+  d3.json(queryUrl).then((data) => {
+    console.log(queryUrl);
+    let table = d3.select(“#summary-table”);
+    let tbody = table.select(“tbody”);
+    data.dataset.data.forEach((item) => {
+      let row = tbody.append(“tr”);
+      row.append(“td”).text(item[0]);
+      row.append(“td”).text(item[1]);
+      row.append(“td”).text(item[2]);
+      row.append(“td”).text(item[3]);
+      row.append(“td”).text(item[4]);
+      row.append(“td”).text(item[5]);
+    });
+  });
+}
+// this will be called to build the chart build candlestick chart from previous exercise
+function buildChart() {
+  var apiKey = Key();
+  var url = `https://www.quandl.com/api/v3/datasets/WIKI/AMZN.json?start_date=2017-01-01&end_date=2018-11-22&api_key=${apiKey}`;
+  d3.json(url).then(Plot);
+  function Plot(data) {
+    var name = data.dataset.name;
+    var stock = data.dataset.dataset_code;
+    var startDate = data.dataset.start_date;
+    var endDate = data.dataset.end_date;
+    var dates = data.dataset.data.map((d) => d[0]);
+    var openingPrices = data.dataset.data.map((d) => d[1]);
+    var highPrices = data.dataset.data.map((d) => d[2]);
+    var lowPrices = data.dataset.data.map((d) => d[3]);
+    var closingPrices = data.dataset.data.map((d) => d[4]);
+    var trace1 = {
+      type: “scatter”,
+      mode: “lines”,
+      name: name,
+      x: dates,
+      y: closingPrices,
+      line: { color: “#17BECF” },
+    };
+    var trace2 = {
+      type: “candlestick”,
+      x: dates,
+      high: highPrices,
+      low: lowPrices,
+      open: openingPrices,
+      close: closingPrices,
+    };
+    var layout = {
+      title: `${stock} closing prices`,
+      xaxis: { range: [startDate, endDate], type: “date” },
+      yaxis: { autorange: true, type: “linear”, rangeslider: { title: “red” } },
+      showlegend: false,
+    };
+    Plotly.newPlot(“plot”, [trace1, trace2], layout);
+  }
+}
+buildTable();
+buildChart();
